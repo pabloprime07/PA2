@@ -37,8 +37,6 @@ def nth_prime_number(n):
 # thread function 
 def threaded(c): 
     while True: 
-  
-        # data received from client 
         data = c.recv(1024) 
         if not data: 
             print('Bye') 
@@ -61,10 +59,6 @@ def threaded(c):
   
 def Main(): 
     host = "" 
-  
-    # reverse a port on your computer 
-    # in our case it is 12345 but it 
-    # can be anything 
     port = 12345
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     s.bind((host, port)) 
