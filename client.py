@@ -8,9 +8,12 @@ import threading
 
 parser = argparse.ArgumentParser()
 parser.add_argument('load', type=int, help='indicator for load on the servers')
+parser.add_argument('timetosleep', type=int, help='time between two requests')
 args = parser.parse_args()
+
 # print(args.load)
 load = args.load
+timetosleep = float(args.timetosleep/100)
 servers = list()
 servers.append('192.168.122.100')
 # thread function 
@@ -55,6 +58,20 @@ def loadinp():
         print("New load = "+str(load))
         time.sleep(1)
 
+def sendrequests(host):
+    port = 12345
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
+    s.connect((host,port)) 
+    
+    message = str(random.randint(pow(10, load-1), pow(10, load)))
+    
+    s.send(message.encode('ascii')) 
+
+    data = s.recv(1024) 
+    print(f'Cur Load : {load} ', end='')
+    print(f'Received from the server : {host} ',str(data.decode('ascii'))) 
+    s.close()
+
 def Main(): 
     # local host IP '127.0.0.1' 
     
@@ -74,21 +91,11 @@ def Main():
             print('sleeping...')
             continue
         host = servers[random.randint(0,len(servers)-1)]
-        print(servers)
-        print(host)
-        port = 12345
-        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
-        s.connect((host,port)) 
-        
-        message = str(random.randint(pow(10, load-1), pow(10, load)))
-        
-        s.send(message.encode('ascii')) 
-  
-        data = s.recv(1024) 
-        print(f'Cur Load : {load} ', end='')
-        print(f'Received from the server : {host} ',str(data.decode('ascii'))) 
-        s.close()
-        time.sleep(0.5)
+        # print(servers)
+        # print(host)
+        # threading.Thread(target=sendrequests, args=(host,))
+        start_new_thread(sendrequests, (host,))
+        time.sleep(timetosleep)
     
   
 if __name__ == '__main__': 

@@ -2,6 +2,21 @@ import libvirt
 import argparse
 import time
 import socket
+
+import random
+from itertools import count
+import time
+
+from pylive import live_plotter
+import numpy as np
+
+size = 100
+x_vec = np.linspace(0,0.1,size+1)[0:-1]
+# print(x_vec.shape)
+y_vec = np.random.randn(len(x_vec))
+y_vec = np.zeros((size,),dtype=float)
+
+line1 = []
 # parser = argparse.ArgumentParser()
 # parser.add_argument('load', type=int, help='indicator for load on the servers')
 # args = parser.parse_args()
@@ -64,10 +79,17 @@ while True:
             prevtimes[i] = cputime
         time.sleep(0.5)
     minusage = 1000
+    overallload = 0
     for i in range(len(doms)):
         avgusage = sum(usagetimes[i])/n
+        overallload += avgusage/len(doms)
         minusage = min(avgusage, minusage)
         print(f'Usage for {doms[i].name()} :: {avgusage}')
+    print(f'Overall load :{overallload}')
+    rand_val = overallload
+    y_vec[-1] = rand_val
+    line1 = live_plotter(x_vec,y_vec,line1)
+    y_vec = np.append(y_vec[1:],0.0)
     print()
     # if avgusage > highloadthreshold:
     #     highloadcount = highloadcount + 1
@@ -82,7 +104,7 @@ while True:
             if x.isActive() == False:
                 print("Starting new server.....")
                 x.create()
-                time.sleep(30)        
+                time.sleep(45)        
                 host = "127.0.0.1"
                 port = 23456
                 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
@@ -92,6 +114,7 @@ while True:
                 data = s.recv(1024) 
                 print('Started new server at : ',str(data.decode('ascii'))) 
                 s.close()
+                break
     time.sleep(1)
 
 conn.close()
