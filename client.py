@@ -13,15 +13,15 @@ args = parser.parse_args()
 load = args.load
 servers = list()
 servers.append('192.168.122.100')
-
 # thread function 
 def threaded(c): 
     while True: 
         data = c.recv(1024) 
         if not data: 
-            print('Conn lost to monitor...') 
+            # print('Conn lost to monitor...') 
             break
-        print(data)
+        data = data.decode()
+        print(f'Recieved from monitor : {data}')
         servers.append(data) 
         print(data)
         c.send(data.encode()) 
@@ -42,7 +42,7 @@ def maintain_servers():
   
         c, addr = s.accept() 
   
-        print('Connected to :', addr[0], ':', addr[1]) 
+        # print('Connected to :', addr[0], ':', addr[1]) 
  
         start_new_thread(threaded, (c,)) 
     s.close() 
@@ -58,7 +58,7 @@ def loadinp():
 def Main(): 
     # local host IP '127.0.0.1' 
     
-    host = '127.0.0.1'
+    # host = '127.0.0.1'
   
     # Define the port on which you want to connect 
     
@@ -74,6 +74,8 @@ def Main():
             print('sleeping...')
             continue
         host = servers[random.randint(0,len(servers)-1)]
+        print(servers)
+        print(host)
         port = 12345
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
         s.connect((host,port)) 

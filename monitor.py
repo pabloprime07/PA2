@@ -63,7 +63,7 @@ while True:
             usagetimes[i].append(cpuutil)
             prevtimes[i] = cputime
         time.sleep(0.5)
-    minusage = 0
+    minusage = 1000
     for i in range(len(doms)):
         avgusage = sum(usagetimes[i])/n
         minusage = min(avgusage, minusage)
@@ -77,11 +77,12 @@ while True:
     # if highloadcount == maxhighloadretry :
     #     print(f'High Load from {dom.name()} for the last {maxhighloadretry} times')
     #     # Thread(target=startNewVM).start()
-    if minusage > 80:
+    if minusage > 50:
         for x in conn.listAllDomains():
             if x.isActive() == False:
                 print("Starting new server.....")
-                x.create()        
+                x.create()
+                time.sleep(30)        
                 host = "127.0.0.1"
                 port = 23456
                 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
