@@ -21,7 +21,6 @@ def threaded(c):
         if not data: 
             print('Conn lost to monitor...') 
             break
-  
         print(data)
         servers.append(data) 
         print(data)
@@ -85,7 +84,7 @@ def Main():
   
         data = s.recv(1024) 
         print(f'Cur Load : {load} ', end='')
-        print('Received from the server :',str(data.decode('ascii'))) 
+        print(f'Received from the server : {host} ',str(data.decode('ascii'))) 
         s.close()
         time.sleep(0.5)
     

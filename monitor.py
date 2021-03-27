@@ -1,6 +1,7 @@
 import libvirt
 import argparse
 import time
+import socket
 # parser = argparse.ArgumentParser()
 # parser.add_argument('load', type=int, help='indicator for load on the servers')
 # args = parser.parse_args()
@@ -62,10 +63,10 @@ while True:
             usagetimes[i].append(cpuutil)
             prevtimes[i] = cputime
         time.sleep(0.5)
-    maxusage = 0
+    minusage = 0
     for i in range(len(doms)):
         avgusage = sum(usagetimes[i])/n
-        maxusage = max(avgusage, maxusage)
+        minusage = min(avgusage, minusage)
         print(f'Usage for {doms[i].name()} :: {avgusage}')
     print()
     # if avgusage > highloadthreshold:
@@ -76,9 +77,10 @@ while True:
     # if highloadcount == maxhighloadretry :
     #     print(f'High Load from {dom.name()} for the last {maxhighloadretry} times')
     #     # Thread(target=startNewVM).start()
-    if maxusage > 0.9:
+    if minusage > 80:
         for x in conn.listAllDomains():
             if x.isActive() == False:
+                print("Starting new server.....")
                 x.create()        
                 host = "127.0.0.1"
                 port = 23456
