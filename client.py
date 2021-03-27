@@ -84,7 +84,7 @@ def Main():
         s.send(message.encode('ascii')) 
   
         data = s.recv(1024) 
-        print(load)
+        print(f'Cur Load : {load} ', end='')
         print('Received from the server :',str(data.decode('ascii'))) 
         s.close()
         time.sleep(0.5)

@@ -36,25 +36,38 @@ for x in conn.listAllDomains():
 while True:
 
     # timer = timer + 1
-    doms = conn.listAllDomains()
+    alldoms = conn.listAllDomains()
+    doms = list()
+    for x in alldoms:
+        if x.isActive() == True:
+            doms.append(x)
     prevtimes = [ 0 for x in doms]
     usagetimes = [ [] for x in doms]
     n = 10
     for ii in range(n):
-        
+        if ii == 0:
+            for i in range(len(doms)):
+                cputime = doms[i].getCPUStats(True)[0]["cpu_time"]
+                prevtimes[i] = cputime
+            time.sleep(0.5)
+            continue    
         for i in range(len(doms)):
-            cputime = doms[i].getCPUStats(True)[0]["cpu_time"]-doms[i].getCPUStats(True)[0]["system_time"]-doms[i].getCPUStats(True)[0]["user_time"]
+            # cputime = doms[i].getCPUStats(True)[0]["cpu_time"]-doms[i].getCPUStats(True)[0]["system_time"]-doms[i].getCPUStats(True)[0]["user_time"]
             cputime = doms[i].getCPUStats(True)[0]["cpu_time"]
             
-            cpuutil = (cputime-prevtimes[i])/(2E9)
+            cpuutil = 2*(cputime-prevtimes[i])/(1E7)
+            # print(f'Usage for {doms[i].name()} :: {cpuutil}')
+            # if prevtimes[i]==0:
+            #     continue
             usagetimes[i].append(cpuutil)
             prevtimes[i] = cputime
         time.sleep(0.5)
-
+    maxusage = 0
     for i in range(len(doms)):
         avgusage = sum(usagetimes[i])/n
+        maxusage = max(avgusage, maxusage)
         print(f'Usage for {doms[i].name()} :: {avgusage}')
-        print()
+    print()
     # if avgusage > highloadthreshold:
     #     highloadcount = highloadcount + 1
     # else :
@@ -63,19 +76,19 @@ while True:
     # if highloadcount == maxhighloadretry :
     #     print(f'High Load from {dom.name()} for the last {maxhighloadretry} times')
     #     # Thread(target=startNewVM).start()
-    #     for x in conn.listAllDomains():
-    #         if x.isActive() == False:
-    #             x.create()        
-    #             host = "127.0.0.1"
-    #             port = 23456
-    #             s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
-    #             s.connect((host,port)) 
-    #             message = domips[x.name()]
-    #             s.send(message.encode('ascii')) 
-    #             data = s.recv(1024) 
-    #             print('Received from the client :',str(data.decode('ascii'))) 
-    #             s.close()
-    #             break
+    if maxusage > 0.9:
+        for x in conn.listAllDomains():
+            if x.isActive() == False:
+                x.create()        
+                host = "127.0.0.1"
+                port = 23456
+                s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
+                s.connect((host,port)) 
+                message = domips[x.name()]
+                s.send(message.encode('ascii')) 
+                data = s.recv(1024) 
+                print('Started new server at : ',str(data.decode('ascii'))) 
+                s.close()
     time.sleep(1)
 
 conn.close()
